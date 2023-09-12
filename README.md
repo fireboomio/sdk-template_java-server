@@ -1,0 +1,1 @@
+# Java hook server SDK template for fireboom

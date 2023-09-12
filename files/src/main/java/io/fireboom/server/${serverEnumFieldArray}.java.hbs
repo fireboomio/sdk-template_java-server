@@ -1,0 +1,17 @@
+package io.fireboom.server.enums;
+
+import lombok.Getter;
+
+// <#fileName#>enums/{{upperFirst name}}<#fileName#>
+public enum {{upperFirst name}} {
+    {{#each values}}
+    {{> field_reserved name=(getOrDefault aliasKeys this this)}}({{#equal valueType 'string'}}"{{/equal}}{{this}}{{#equal valueType 'string'}}"{{/equal}}){{#if @last}};{{else}},{{/if}}
+    {{/each}}
+
+    @Getter
+    private final {{> field_type_simple typeName=valueType}} value;
+
+    {{upperFirst name}}({{> field_type_simple typeName=valueType}} value) {
+        this.value = value;
+    }
+}

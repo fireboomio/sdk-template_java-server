@@ -1,0 +1,26 @@
+package io.fireboom.entity.{{root}};
+
+import lombok.Data;
+
+// <#fileName#>{{replaceSpecial root '/'}}/{{upperFirst (joinString '_' documentPath)}}<#fileName#>
+@Data
+{{#if fields}}@lombok.NoArgsConstructor{{/if}}
+public class {{upperFirst (joinString '_' documentPath)}} {
+    public {{upperFirst (joinString '_' documentPath)}}(
+    {{~#each fields}}
+        {{~> field_type this=this package='entity'}} {{> field_reserved name=name}}{{#unless @last}}, {{/unless~}}
+    {{/each~}}
+    ) {
+        {{#each fields}}
+        this.{{> field_reserved name=name}} = {{> field_reserved name=name}};
+        {{/each}}
+    }
+    {{#each fields}}
+    {{~#equal typeFormat 'DateTime'}}
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    @org.springframework.format.annotation.DateTimeFormat(pattern="yyyy-MM-dd'T'HH:mm:ssXXX")
+    {{/equal}}
+    @com.alibaba.fastjson.annotation.JSONField(name = "{{name}}")
+    private {{> field_type this=this package='entity'}} {{> field_reserved name=name}};
+    {{/each}}
+}

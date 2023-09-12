@@ -1,0 +1,10 @@
+{{~#equal typeName ''}}Object{{/equal~}}
+{{~#equal typeName 'integer'}}Integer{{/equal~}}
+{{~#equal typeName 'number'}}Double{{/equal~}}
+{{~#equal typeName 'boolean'}}Boolean{{/equal~}}
+{{~#equal typeName 'string'~}}
+    {{~#if (equalAny typeFormat ',Bytes')}}String{{/if~}}
+    {{~#if (equalAny typeFormat 'Date,Time,DateTime,date-time')}}java.util.Date{{/if~}}
+    {{~#equal typeFormat 'Decimal'}}java.math.BigDecimal{{/equal~}}
+    {{~#equal typeFormat 'BigInt'}}java.math.BigInteger{{/equal~}}
+{{~/equal~}}

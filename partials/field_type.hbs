@@ -1,0 +1,11 @@
+{{#if isArray}}java.util.List<{{~/if~}}
+{{~#if typeRefObject~}}
+    io.fireboom.{{package}}.{{typeRefObject.root}}.{{~upperFirst (joinString '_' typeRefObject.documentPath)~}}
+{{~else~}}
+    {{~#if typeRefEnum~}}
+        io.fireboom.{{package}}.enums.{{~upperFirst typeRefEnum.name~}}
+    {{~else~}}
+        {{~> field_type_simple typeName=typeName typeFormat=typeFormat}}
+    {{~/if~}}
+{{~/if~}}
+{{#if isArray}}>{{~/if~}}

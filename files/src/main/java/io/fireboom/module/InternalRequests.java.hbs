@@ -1,0 +1,14 @@
+package io.fireboom.module;
+
+import io.fireboom.plugins.InternalRequest;
+import io.fireboom.entity.InternalInput.*;
+import io.fireboom.entity.Input.*;
+import io.fireboom.entity.ResponseData.*;
+
+public class InternalRequests {
+{{#each operations}}
+    {{~#unless (equalAny engine 2)}}
+    public static final InternalRequest.Meta<{{upperFirst name}}{{#equal engine 0}}Internal{{/equal}}Input, {{upperFirst name}}ResponseData> {{upperFirst name}} = new InternalRequest.Meta<>("{{path}}");
+    {{/unless}}
+{{/each}}
+}
