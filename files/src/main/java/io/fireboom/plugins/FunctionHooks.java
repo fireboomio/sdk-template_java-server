@@ -8,12 +8,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.TypeUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONPath;
+import graphql.com.google.common.collect.Maps;
 import io.fireboom.server.enums.HookParent;
 import io.fireboom.server.enums.OperationField;
 import io.fireboom.server.enums.OperationType;
 import io.fireboom.server.hook.MiddlewareHookResponse;
 import io.fireboom.server.operation.OperationHookPayload;
-import graphql.com.google.common.collect.Maps;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.extern.slf4j.Slf4j;
@@ -87,8 +87,9 @@ public abstract class FunctionHooks<I, O> {
         // 返回的UnmodifiableMap未实现remove方法
         Map<String, Schema> scheamMap = ModelConverters.getInstance().readAll(type);
         String typeName = StrUtil.subAfter(type.getTypeName(), StrUtil.DOT, true);
-        String schemaString = JSON.toJSONString(scheamMap.get(typeName));
-        scheamMap = scheamMap.keySet().stream().filter(x -> !x.equals(typeName)).collect(Collectors.toMap(x -> x, scheamMap::get));
+        String finalTypeName = StrUtil.subAfter(typeName, "$", true);
+        String schemaString = JSON.toJSONString(scheamMap.get(finalTypeName));
+        scheamMap = scheamMap.keySet().stream().filter(x -> !x.equals(finalTypeName)).collect(Collectors.toMap(x -> x, scheamMap::get));
         if (!scheamMap.isEmpty()) {
             schemaString = JSONPath.set(schemaString, definitionsProperty, scheamMap);
         }
