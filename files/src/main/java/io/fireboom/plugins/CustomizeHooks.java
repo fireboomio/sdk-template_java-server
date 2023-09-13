@@ -2,7 +2,6 @@ package io.fireboom.plugins;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -12,10 +11,10 @@ import graphql.ExecutionResultImpl;
 import graphql.GraphQL;
 import graphql.com.google.common.collect.Maps;
 import graphql.schema.GraphQLSchema;
+import io.fireboom.server.customize.CustomizeHookPayload;
 import io.fireboom.server.enums.CustomizeFlag;
 import io.fireboom.server.enums.Endpoint;
 import io.fireboom.server.enums.HookParent;
-import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +28,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -39,18 +39,16 @@ public abstract class CustomizeHooks {
     private static final Map<String, GraphQL> schemaMap = Maps.newConcurrentMap();
     private static final Map<String, String> helixMap = Maps.newConcurrentMap();
 
-    public static ExecutionResult execute(String name, GraphqlInput graphqlInput, HttpServletResponse response) throws IOException {
+    public static ExecutionResult execute(String name, CustomizeHookPayload body, HttpServletResponse response) throws IOException {
         GraphQL graphQL = schemaMap.get(name);
         if (null == graphQL) {
             throw new RuntimeException("not found graphql: " + name);
         }
 
         ExecutionInput.Builder builder = ExecutionInput.newExecutionInput()
-                                                       .query(graphqlInput.query)
-                                                       .operationName(graphqlInput.operationName);
-        if (MapUtil.isNotEmpty(graphqlInput.variables)) {
-            builder.variables(graphqlInput.variables);
-        }
+                                                       .query(body.getQuery())
+                                                       .operationName(body.getOperationName());
+        Optional.ofNullable(body.getVariables()).ifPresent(builder::variables);
         ExecutionInput input = builder.build();
         if (!StrUtil.startWithIgnoreCase(input.getQuery(), CustomizeFlag.subscription.getValue()) || null == response) {
             return graphQL.execute(input);
@@ -95,7 +93,7 @@ public abstract class CustomizeHooks {
     @SneakyThrows
     public static void writeIntrospectJson() {
         String schemaFlag = CustomizeFlag.__schema.getValue();
-        GraphqlInput introspectInput = JSONObject.parseObject(introspectJsonString, GraphqlInput.class);
+        CustomizeHookPayload introspectInput = JSONObject.parseObject(introspectJsonString, CustomizeHookPayload.class);
         for (String name : schemaMap.keySet()) {
             ExecutionResult result = execute(name, introspectInput, null);
             if (CollectionUtil.isNotEmpty(result.getErrors())) {
@@ -133,10 +131,4 @@ public abstract class CustomizeHooks {
         helixMap.put(name, StrUtil.replace(helixTemplate, CustomizeFlag.graphqlEndpoint.getValue(), graphqlEndpoint));
     }
 
-    @Data
-    public static class GraphqlInput {
-        private String operationName;
-        private String query;
-        private Map<String, Object> variables;
-    }
 }
