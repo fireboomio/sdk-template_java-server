@@ -37,7 +37,7 @@ public abstract class CustomizeHooks {
 
     abstract protected GraphQLSchema schema();
 
-    private static ThreadLocal<BaseRequestBodyWg> contextVariable = ThreadLocal.withInitial(() -> null);
+    private static final ThreadLocal<BaseRequestBodyWg> contextVariable = ThreadLocal.withInitial(() -> null);
     private static final Map<String, GraphQL> schemaMap = Maps.newConcurrentMap();
     private static final Map<String, String> helixMap = Maps.newConcurrentMap();
 
