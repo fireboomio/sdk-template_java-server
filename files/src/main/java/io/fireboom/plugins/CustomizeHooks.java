@@ -15,6 +15,7 @@ import io.fireboom.server.customize.CustomizeHookPayload;
 import io.fireboom.server.enums.CustomizeFlag;
 import io.fireboom.server.enums.Endpoint;
 import io.fireboom.server.enums.HookParent;
+import io.fireboom.server.hook.BaseRequestBodyWg;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +37,7 @@ public abstract class CustomizeHooks {
 
     abstract protected GraphQLSchema schema();
 
+    private static ThreadLocal<BaseRequestBodyWg> contextVariable = ThreadLocal.withInitial(() -> null);
     private static final Map<String, GraphQL> schemaMap = Maps.newConcurrentMap();
     private static final Map<String, String> helixMap = Maps.newConcurrentMap();
 
@@ -45,6 +47,7 @@ public abstract class CustomizeHooks {
             throw new RuntimeException("not found graphql: " + name);
         }
 
+        contextVariable.set(body.get__wg());
         ExecutionInput.Builder builder = ExecutionInput.newExecutionInput()
                                                        .query(body.getQuery())
                                                        .operationName(body.getOperationName());
@@ -131,4 +134,7 @@ public abstract class CustomizeHooks {
         helixMap.put(name, StrUtil.replace(helixTemplate, CustomizeFlag.graphqlEndpoint.getValue(), graphqlEndpoint));
     }
 
+    protected BaseRequestBodyWg fetchWg() {
+        return contextVariable.get();
+    }
 }
