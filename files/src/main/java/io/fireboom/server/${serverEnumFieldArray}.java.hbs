@@ -5,7 +5,7 @@ import lombok.Getter;
 // <#fileName#>enums/{{upperFirst name}}<#fileName#>
 public enum {{upperFirst name}} {
     {{#each values}}
-    {{> field_reserved name=(getOrDefault valuesAlias this this)}}({{#equal valueType 'string'}}"{{/equal}}{{this}}{{#equal valueType 'string'}}"{{/equal}}){{#if @last}};{{else}},{{/if}}
+    {{> field_reserved name=(getOrDefault valueAliasMap this this)}}({{#equal valueType 'string'}}"{{/equal}}{{this}}{{#equal valueType 'string'}}"{{/equal}}){{#if @last}};{{else}},{{/if}}
     {{/each}}
 
     @Getter
